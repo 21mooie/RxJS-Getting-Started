@@ -74,7 +74,7 @@ import { allBooks, allReaders } from './data';
 
 //#region Subscribing to Observables with Observers
 
-let books$ = from(allBooks);
+// let books$ = from(allBooks);
 
 // let booksObserver = {
 //     next: book => console.log(`Title: ${book.title}`),
@@ -84,10 +84,28 @@ let books$ = from(allBooks);
 
 // books$.subscribe(booksObserver);
 
-books$.subscribe(
-    book => console.log(`Title: ${book.title}`),
-    err => console.log(`ERROR:  ${err}`),
-    () => console.log(`All done!`)
+// books$.subscribe(
+//     book => console.log(`Title: ${book.title}`),
+//     err => console.log(`ERROR:  ${err}`),
+//     () => console.log(`All done!`)
+// );
+
+let currentTime$ = new Observable(subscriber => {
+    const timeString = new Date().toLocaleTimeString();
+    subscriber.next(timeString);
+    subscriber.complete();
+})
+
+currentTime$.subscribe(
+    currentTime => console.log(`Observer 1: ${currentTime}`)
 );
 
+setTimeout(() => {
+    currentTime$.subscribe(
+    currentTime => console.log(`Observer 2: ${currentTime}`)
+)}, 1000);
+
+currentTime$.subscribe(
+    currentTime => console.log(`Observer 3: ${currentTime}`)
+);
 //#endregion
