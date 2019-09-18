@@ -1,5 +1,6 @@
 import { Observable, of, from, fromEvent, concat } from 'rxjs';
 import { allBooks, allReaders } from './data';
+import { ajax, AjaxResponse } from 'rxjs/ajax';
 
 // let allBooksObservable$ = new Observable(subscriber =>{
 
@@ -31,26 +32,12 @@ let display = document.getElementById('readers');
 fromEvent(button, 'click')
     .subscribe(event => {
         console.log(event);
-        // for (let reader of allReaders) {
-        //     display.innerHTML += reader.name + '<br/>';
-        // }
-
-        // display.innerHTML = allReaders.reduce(reducer, idx);
-
-        // function reducer(total, reader) {
-        //     return total + reader.name + '<br/>';
-        // }
-        // display.innerHTML = allReaders.map(reader => {
-        //     return reader.name;
-        // }).join('<br/>');
-
-        const authorNames = allReaders.map(reader => {
-            return reader.name;
-        })
-        let val = '';
-        display.innerHTML = allReaders.reduce((accumulator, currValue, idx, array) => {
-            return idx === array.length - 1? accumulator + currValue.name : accumulator + currValue.name + '<br/>';
-        }, val);
+        ajax('/api/readers').subscribe(ajaxResponse => {
+            let readers = ajaxResponse.response;
+            display.innerHTML = readers.reduce((acc, curr, idx) => {
+                return idx === 0 ? curr.name : acc + '<br/>' + curr.name
+            }, '');
+        });
     });
 
 // button.addEventListener('click', () => {
