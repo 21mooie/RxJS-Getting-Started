@@ -122,4 +122,6 @@ typings/
 
 # End of https://www.gitignore.io/api/node,macos
 
-**/demos/Before/RxBookTracker/dist/bundle.js
+./**/demos/Before/RxBookTracker/dist/*
+
+**/dist/

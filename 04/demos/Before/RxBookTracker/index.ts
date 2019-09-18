@@ -72,3 +72,22 @@ import { allBooks, allReaders } from './data';
 
 //#endregion
 
+//#region Subscribing to Observables with Observers
+
+let books$ = from(allBooks);
+
+// let booksObserver = {
+//     next: book => console.log(`Title: ${book.title}`),
+//     error: err => console.log(`ERROR:  ${err}`),
+//     complete: () => console.log(`All done!`)
+// };
+
+// books$.subscribe(booksObserver);
+
+books$.subscribe(
+    book => console.log(`Title: ${book.title}`),
+    err => console.log(`ERROR:  ${err}`),
+    () => console.log(`All done!`)
+);
+
+//#endregion
