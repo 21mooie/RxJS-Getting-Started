@@ -1,4 +1,4 @@
-import { Observable, of, from, fromEvent, concat } from 'rxjs';
+import { Observable, of, from, fromEvent, concat, interval } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import { allBooks, allReaders } from './data';
 
@@ -90,22 +90,53 @@ import { allBooks, allReaders } from './data';
 //     () => console.log(`All done!`)
 // );
 
-let currentTime$ = new Observable(subscriber => {
-    const timeString = new Date().toLocaleTimeString();
-    subscriber.next(timeString);
-    subscriber.complete();
-})
+// let currentTime$ = new Observable(subscriber => {
+//     const timeString = new Date().toLocaleTimeString();
+//     subscriber.next(timeString);
+//     subscriber.complete();
+// })
 
-currentTime$.subscribe(
-    currentTime => console.log(`Observer 1: ${currentTime}`)
+// currentTime$.subscribe(
+//     currentTime => console.log(`Observer 1: ${currentTime}`)
+// );
+
+// setTimeout(() => {
+//     currentTime$.subscribe(
+//     currentTime => console.log(`Observer 2: ${currentTime}`)
+// )}, 1000);
+
+// currentTime$.subscribe(
+//     currentTime => console.log(`Observer 3: ${currentTime}`)
+// );
+
+let timeDiv = document.getElementById('times');
+let button = document.getElementById('timerButton');
+
+// let timer$ = interval(1000);
+let timer$ = new Observable(subscriber => {
+    let i = 0;
+    let intervalId = setInterval(()=> {
+        subscriber.next(i++);
+    }, 1000);
+    return () => {
+        console.log('Executing teardown code');
+        clearInterval(intervalId);
+    }
+});
+let timerSubscription = timer$.subscribe(
+    value => timeDiv.innerHTML += `${new Date().toLocaleTimeString()} (${value}) <br>`,
+    null,
+    () => console.log(`All done!`)
 );
 
-setTimeout(() => {
-    currentTime$.subscribe(
-    currentTime => console.log(`Observer 2: ${currentTime}`)
-)}, 1000);
+let timerConsoleSubscrition = timer$.subscribe(value => {
+    console.log(`${new Date().toLocaleTimeString()} (${value})`)
+});
 
-currentTime$.subscribe(
-    currentTime => console.log(`Observer 3: ${currentTime}`)
-);
+timerSubscription.add(timerConsoleSubscrition);
+
+fromEvent(button, 'click')
+    .subscribe(
+        event => timerSubscription.unsubscribe()
+    );
 //#endregion
