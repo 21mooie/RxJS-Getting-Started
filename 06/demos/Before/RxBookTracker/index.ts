@@ -213,12 +213,27 @@ function grabAndLogClassics(year, log) {
     }
 }
 
+function grabClassics(year) {
+    return filter((book:any) => book.publicationYear < year);
+}
+
+function grabAndLogClassicsWithPipe(year, log) {
+    return source$ => 
+        source$
+            .pipe(
+                filter((book:any) => book.publicationYear < year),
+                tap((book: any) => log ? console.log(`Classic: ${book.title}`): null)
+            );
+}
+
 ajax('/api/books')
     .pipe(
         flatMap(ajaxResponse => ajaxResponse.response),
         // filter((book:any) => book.publicationYear),
         // tap(oldBook => console.log(`Title: ${oldBook.title}`))
-        grabAndLogClassics(1930, false)
+        // grabAndLogClassics(1930, false)
+        // grabClassics(1950)
+        grabAndLogClassicsWithPipe(1930, true)
     )
     .subscribe(
         (finalValue:any) => console.log(`Value: ${finalValue.title}`),
