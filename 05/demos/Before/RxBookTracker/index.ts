@@ -147,3 +147,34 @@ import { allBooks, allReaders } from './data';
 
 //#endregion
 
+// #region Using Operators
+// let source$ = of(1,2,3,4);
+
+//way of creating your own operator
+// let doubler = map(val => val * 2);
+
+// let doubler$ = doubler(source$);
+
+// doubler$.subscribe(output => console.log(output));
+
+//old way of operater pre 5.5
+// let source$ = of(1,2,3,4,5);
+// source$
+//     .map(value => value * 2)
+//     .filter(mappedValue => mappedValue > 5)
+//     .subscribe(
+//         val => console.log(val)
+//     );
+
+//current way of operator
+// let source$ = of(1,2,3,4,5);
+
+// source$.pipe(
+//     map(val => val *2),
+//     filter(val => val > 5)
+// ).subscribe(
+//     final => console.log(final)
+// );
+
+//#endregion
+
