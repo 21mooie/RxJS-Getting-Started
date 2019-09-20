@@ -1,7 +1,7 @@
 import { Observable, of, from, fromEvent, concat, interval, throwError } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import { allBooks, allReaders } from './data';
-import { mergeMap, filter, tap, catchError } from 'rxjs/operators';
+import { mergeMap, filter, tap, catchError, take, takeUntil } from 'rxjs/operators';
 
 //#region Creating Observables
 
@@ -176,19 +176,45 @@ import { mergeMap, filter, tap, catchError } from 'rxjs/operators';
 //     final => console.log(final)
 // );
 
-ajax('/api/errors/500')
-    .pipe(
-        mergeMap(ajaxResponse => ajaxResponse.response), //allowed to seperate response instead of dealing with array
-        filter((book:any)  => book.publicationYear < 1950),
-        tap(oldBook => console.log(`Title: ${oldBook.title}`)),
-        // catchError(err => of({title: 'Corduroy', author: 'Don Freeman'})) handle error and return good observable
-        // catchError((err, caught) => caught) return same error observable
-        // catchError(err => throw `Something bad happened - ${err.message}`) throws new error observable to be handled by error callback in subscribe
-        // catchError(err => {return throwError(err.message)}) throw errors using rxjs function throwError to wrap with observable
-    ).subscribe(
-        (finalValue:any) => console.log(`VALUE: ${finalValue.title}`),
-        error => console.error(`ERROR: ${error}`)
-    );
+// ajax('/api/errors/500')
+//     .pipe(
+//         mergeMap(ajaxResponse => ajaxResponse.response), //allowed to seperate response instead of dealing with array
+//         filter((book:any)  => book.publicationYear < 1950),
+//         tap(oldBook => console.log(`Title: ${oldBook.title}`)),
+//         // catchError(err => of({title: 'Corduroy', author: 'Don Freeman'})) handle error and return good observable
+//         // catchError((err, caught) => caught) return same error observable
+//         // catchError(err => throw `Something bad happened - ${err.message}`) throws new error observable to be handled by error callback in subscribe
+//         // catchError(err => {return throwError(err.message)}) throw errors using rxjs function throwError to wrap with observable
+//     ).subscribe(
+//         (finalValue:any) => console.log(`VALUE: ${finalValue.title}`),
+//         error => console.error(`ERROR: ${error}`)
+//     );
+
+let timesDiv = document.getElementById('times');
+let button = document.getElementById('timerButton');
+
+let timer$ = new Observable(subscriber => {
+  let i = 0;
+  let intervalID = setInterval(() => {
+    subscriber.next(i++);
+  }, 1000);
+
+  return () => {
+    console.log('Executing teardown code.');
+    clearInterval(intervalID);
+  }
+});
+
+let cancelTimer$ = fromEvent(button, 'click');
+
+timer$.pipe(
+    // take(3) will take values from observable until specified number then call complete callback of observable
+    // takeUntil(cancelTimer$) take values until this observable passed emits first value
+).subscribe(
+  value => timesDiv.innerHTML += `${new Date().toLocaleTimeString()} (${value}) <br>`,
+  null,
+  () => console.log('All done!')
+);
 
 //#endregion
 
