@@ -1,6 +1,6 @@
 import { Observable, of, from, fromEvent, concat, interval, throwError } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
-import { mergeMap, filter, tap, catchError, take, takeUntil } from 'rxjs/operators';
+import { mergeMap, filter, tap, catchError, take, takeUntil, flatMap } from 'rxjs/operators';
 import { allBooks, allReaders } from './data';
 
 
@@ -190,6 +190,41 @@ import { allBooks, allReaders } from './data';
 //   null,
 //   () => console.log('All done!')
 // );
+
+//#endregion
+
+//#region Creating your own operators
+function grabAndLogClassics(year, log) {
+    return source$ => {
+        return new Observable(subscriber => {
+            return source$.subscribe(
+                book => {
+                    if (book.publicationYear < year){
+                        subscriber.next(book);
+                        if(log){
+                            console.log(`Classic: ${book.title}`);
+                        }
+                    }
+                },
+                err => subscriber.error(err),
+                () => subscriber.complete()
+            )
+        });
+    }
+}
+
+ajax('/api/books')
+    .pipe(
+        flatMap(ajaxResponse => ajaxResponse.response),
+        // filter((book:any) => book.publicationYear),
+        // tap(oldBook => console.log(`Title: ${oldBook.title}`))
+        grabAndLogClassics(1930, false)
+    )
+    .subscribe(
+        (finalValue:any) => console.log(`Value: ${finalValue.title}`),
+        error => console.log(`ERROR: ${error}`)
+    )
+
 
 //#endregion
 
