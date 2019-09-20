@@ -1,7 +1,7 @@
 import { Observable, of, from, fromEvent, concat, interval } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import { allBooks, allReaders } from './data';
-
+import { mergeMap, filter, tap} from 'rxjs/operators';
 
 //#region Creating Observables
 
@@ -175,6 +175,15 @@ import { allBooks, allReaders } from './data';
 // ).subscribe(
 //     final => console.log(final)
 // );
+
+ajax('/api/books')
+    .pipe(
+        mergeMap(ajaxResponse => ajaxResponse.response), //allowed to seperate response instead of dealing with array
+        filter((book:any)  => book.publicationYear < 1950),
+        tap(oldBook => console.log(`Title: ${oldBook.title}`))
+    ).subscribe(
+        finalValue => console.log(finalValue)
+    );
 
 //#endregion
 
